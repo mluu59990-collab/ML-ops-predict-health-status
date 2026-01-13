@@ -1,76 +1,106 @@
+<!DOCTYPE html>
 <html>
+<head>
+    <title>Fitness Prediction</title>
+    <style>
+        body {
+            font-family: Arial;
+            background-color: #f2f2f2;
+        }
+        .container {
+            width: 500px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px gray;
+        }
+        .form-group {
+            margin-bottom: 12px;
+        }
+        label {
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 6px;
+        }
+        button {
+            width: 100%;
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            font-size: 16px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
 <body>
-<form action="{{url_for('predict_datapoint')}}" method="POST">
-    <div class="form-group">
-        <label for="carat">Carat:</label>
-        <input type="text" id="carat" name="carat" placeholder="Enter carat value (float)">
-    </div>
+<div class="container">
+<h2>Fitness Prediction</h2>
 
-    <div class="form-group">
-        <label for="depth">Depth:</label>
-        <input type="text" id="depth" name="depth" placeholder="Enter depth value (float)">
-    </div>
+<form action="{{ url_for('predict') }}" method="POST">
 
-    <div class="form-group">  
-        <label for="table">Table:</label>
-        <input type="text" id="table" name="table" placeholder="Enter table value (float)">
-    </div>
-    
-    <div class="form-group">
-        <label for="x">x:</label>
-        <input type="text" id="x" name="x" placeholder="Enter x value (float)">
-    </div>
-  
-    <div class="form-group">
-        <label for="y">y:</label>
-        <input type="text" id="y" name="y" placeholder="Enter y value (float)">
-    </div>
-  
-    <div class="form-group">
-        <label for="z">z:</label>
-        <input type="text" id="z" name="z" placeholder="Enter z value (float)">
-    </div>         
-  
 <div class="form-group">
-  <label for="cut">Cut:</label>
-  <select id="cut" name="cut">
-    <option value="Fair">Fair</option>
-    <option value="Good">Good</option>
-    <option value="Very Good">Very Good</option>
-    <option value="Premium">Premium</option>
-    <option value="Ideal">Ideal</option>
-  </select>
-</div>
-  
-<div class="form-group">
-  <label for="color">Color:</label>
-  <select id="color" name="color">
-    <option value="D">D</option>
-    <option value="E">E</option>
-    <option value="F">F</option>
-    <option value="G">G</option>
-    <option value="H">H</option>
-    <option value="I">I</option>
-    <option value="J">J</option>
-  </select>
+    <label>Age</label>
+    <input type="number" name="age" required>
 </div>
 
 <div class="form-group">
-  <label for="clarity">Clarity:</label>
-  <select id="clarity" name="clarity">
-    <option value="I1">I1</option>
-    <option value="SI2">SI2</option>
-    <option value="SI1">SI1</option>
-    <option value="VS2">VS2</option>
-    <option value="VS1">VS1</option>
-    <option value="VVS2">VVS2</option>
-    <option value="VVS1">VVS1</option>
-    <option value="IF">IF</option>
-  </select>
+    <label>Height (cm)</label>
+    <input type="number" name="height_cm" step="0.1" required>
 </div>
 
-<div style="clear:both;"></div>
-  <input type="submit" value="Submit">
+<div class="form-group">
+    <label>Weight (kg)</label>
+    <input type="number" name="weight_kg" step="0.1" required>
+</div>
+
+<div class="form-group">
+    <label>Heart Rate</label>
+    <input type="number" name="heart_rate" required>
+</div>
+
+<div class="form-group">
+    <label>Blood Pressure</label>
+    <input type="number" name="blood_pressure" required>
+</div>
+
+<div class="form-group">
+    <label>Sleep Hours</label>
+    <input type="number" name="sleep_hours" step="0.1" required>
+</div>
+
+<div class="form-group">
+    <label>Nutrition Quality (1–10)</label>
+    <input type="number" name="nutrition_quality" min="1" max="10" required>
+</div>
+
+<div class="form-group">
+    <label>Activity Index (1–10)</label>
+    <input type="number" name="activity_index" min="1" max="10" required>
+</div>
+
+<div class="form-group">
+    <label>Gender</label>
+    <select name="gender">
+        <option value="Male">Male</option>
+        <option value="Female">Female</option>
+    </select>
+</div>
+
+<div class="form-group">
+    <label>Smokes</label>
+    <select name="smokes">
+        <option value="No">No</option>
+        <option value="Yes">Yes</option>
+    </select>
+</div>
+
+<button type="submit">Predict Fitness</button>
 </form>
+</div>
 </body>
 </html>

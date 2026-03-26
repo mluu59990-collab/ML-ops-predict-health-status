@@ -1,6 +1,6 @@
-artifact_location: file:///config/workspace/mlruns/0
-creation_time: 1705058477365
+artifact_location: file:///Users/Documents/ML_OPS/DAY11/mlruns/0
+creation_time: 1768922313821
 experiment_id: '0'
-last_update_time: 1705058477365
+last_update_time: 1768922313821
 lifecycle_stage: active
 name: Default

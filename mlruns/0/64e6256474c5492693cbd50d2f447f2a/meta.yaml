@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/64e6256474c5492693cbd50d2f447f2a/artifacts
+end_time: 1769140812467
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 64e6256474c5492693cbd50d2f447f2a
+run_name: tasteful-duck-841
+run_uuid: 64e6256474c5492693cbd50d2f447f2a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1769140810424
+status: 3
+tags: []
+user_id: apple

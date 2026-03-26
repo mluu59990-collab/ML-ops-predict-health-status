@@ -9,9 +9,3 @@ class CustomException(Exception):
         return "Error occurred in script: {0} at line number: {1} with message: {2}".format(
             self.filename,self.lineno,self.error_message
         )
-
-if __name__ == "__main__":
-    try:
-        a = 1 / 0
-    except Exception as e:
-        raise CustomException(e, sys)

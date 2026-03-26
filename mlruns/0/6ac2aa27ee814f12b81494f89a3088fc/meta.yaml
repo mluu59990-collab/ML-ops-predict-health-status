@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/6ac2aa27ee814f12b81494f89a3088fc/artifacts
+end_time: 1768922315821
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 6ac2aa27ee814f12b81494f89a3088fc
+run_name: salty-donkey-77
+run_uuid: 6ac2aa27ee814f12b81494f89a3088fc
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1768922313898
+status: 4
+tags: []
+user_id: apple

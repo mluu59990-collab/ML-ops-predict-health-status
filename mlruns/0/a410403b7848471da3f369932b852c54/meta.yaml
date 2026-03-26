@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/a410403b7848471da3f369932b852c54/artifacts
+end_time: 1769140427485
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: a410403b7848471da3f369932b852c54
+run_name: traveling-finch-742
+run_uuid: a410403b7848471da3f369932b852c54
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1769140425449
+status: 3
+tags: []
+user_id: apple

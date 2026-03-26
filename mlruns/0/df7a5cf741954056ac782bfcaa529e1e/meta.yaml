@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/df7a5cf741954056ac782bfcaa529e1e/artifacts
+end_time: 1769140694230
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: df7a5cf741954056ac782bfcaa529e1e
+run_name: bright-tern-860
+run_uuid: df7a5cf741954056ac782bfcaa529e1e
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1769140692137
+status: 3
+tags: []
+user_id: apple

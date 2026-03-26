@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/027a76ebe6ba4ac89ee7c3b6c8c51789/artifacts
+end_time: 1769140466831
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 027a76ebe6ba4ac89ee7c3b6c8c51789
+run_name: treasured-snake-258
+run_uuid: 027a76ebe6ba4ac89ee7c3b6c8c51789
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1769140464771
+status: 3
+tags: []
+user_id: apple

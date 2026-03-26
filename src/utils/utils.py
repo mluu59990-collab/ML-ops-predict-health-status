@@ -36,8 +36,6 @@ def evaluate_model(x_train,y_train,x_test,y_test,models):
             # Get R2 scores for train and test data
             #train_model_score = r2_score(ytrain,y_train_pred)
             test_model_score = recall_score(y_test,y_test_pred,pos_label=0)
-            test_model_eva = classification_report(y_test,y_test_pred)
-
             report[list(models.keys())[i]] =  test_model_score
 
         return report

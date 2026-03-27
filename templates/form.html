@@ -1,106 +1,203 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitness Prediction</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
         body {
-            font-family: Arial;
-            background-color: #f2f2f2;
-        }
-        .container {
-            width: 500px;
-            margin: auto;
-            background: white;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #74ebd5, #9face6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 10px gray;
         }
-        .form-group {
-            margin-bottom: 12px;
-        }
-        label {
-            font-weight: bold;
-        }
-        input, select {
+
+        .container {
             width: 100%;
-            padding: 6px;
+            max-width: 550px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
         }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #2d3748;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 14px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            outline: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #f9fafb;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #667eea;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+
         button {
             width: 100%;
-            background: #4CAF50;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 10px;
             border: none;
+            border-radius: 12px;
             font-size: 16px;
-            border-radius: 5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 22px;
+                border-radius: 16px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
 <body>
-<div class="container">
-<h2>Fitness Prediction</h2>
+    <div class="container">
+        <h2>Fitness Prediction</h2>
+        <p class="subtitle">Enter your health information to predict your fitness level</p>
 
-<form action="{{ url_for('predict') }}" method="POST">
+        <form action="{{ url_for('predict') }}" method="POST">
 
-<div class="form-group">
-    <label>Age</label>
-    <input type="number" name="age" required>
-</div>
+            <div class="row">
+                <div class="form-group">
+                    <label>Age</label>
+                    <input type="number" name="age" required>
+                </div>
 
-<div class="form-group">
-    <label>Height (cm)</label>
-    <input type="number" name="height_cm" step="0.1" required>
-</div>
+                <div class="form-group">
+                    <label>Gender</label>
+                    <select name="gender">
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
 
-<div class="form-group">
-    <label>Weight (kg)</label>
-    <input type="number" name="weight_kg" step="0.1" required>
-</div>
+            <div class="row">
+                <div class="form-group">
+                    <label>Height (cm)</label>
+                    <input type="number" name="height_cm" step="0.1" required>
+                </div>
 
-<div class="form-group">
-    <label>Heart Rate</label>
-    <input type="number" name="heart_rate" required>
-</div>
+                <div class="form-group">
+                    <label>Weight (kg)</label>
+                    <input type="number" name="weight_kg" step="0.1" required>
+                </div>
+            </div>
 
-<div class="form-group">
-    <label>Blood Pressure</label>
-    <input type="number" name="blood_pressure" required>
-</div>
+            <div class="row">
+                <div class="form-group">
+                    <label>Heart Rate</label>
+                    <input type="number" name="heart_rate" required>
+                </div>
 
-<div class="form-group">
-    <label>Sleep Hours</label>
-    <input type="number" name="sleep_hours" step="0.1" required>
-</div>
+                <div class="form-group">
+                    <label>Blood Pressure</label>
+                    <input type="number" name="blood_pressure" required>
+                </div>
+            </div>
 
-<div class="form-group">
-    <label>Nutrition Quality (1–10)</label>
-    <input type="number" name="nutrition_quality" min="1" max="10" required>
-</div>
+            <div class="row">
+                <div class="form-group">
+                    <label>Sleep Hours</label>
+                    <input type="number" name="sleep_hours" step="0.1" required>
+                </div>
 
-<div class="form-group">
-    <label>Activity Index (1–10)</label>
-    <input type="number" name="activity_index" min="1" max="10" required>
-</div>
+                <div class="form-group">
+                    <label>Smokes</label>
+                    <select name="smokes">
+                        <option value="No">No</option>
+                        <option value="Yes">Yes</option>
+                    </select>
+                </div>
+            </div>
 
-<div class="form-group">
-    <label>Gender</label>
-    <select name="gender">
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
-    </select>
-</div>
+            <div class="row">
+                <div class="form-group">
+                    <label>Nutrition Quality (1–10)</label>
+                    <input type="number" name="nutrition_quality" min="1" max="10" required>
+                </div>
 
-<div class="form-group">
-    <label>Smokes</label>
-    <select name="smokes">
-        <option value="No">No</option>
-        <option value="Yes">Yes</option>
-    </select>
-</div>
+                <div class="form-group">
+                    <label>Activity Index (1–10)</label>
+                    <input type="number" name="activity_index" min="1" max="10" required>
+                </div>
+            </div>
 
-<button type="submit">Predict Fitness</button>
-</form>
-</div>
+            <button type="submit">Predict Fitness</button>
+        </form>
+    </div>
 </body>
 </html>

@@ -1,1 +1,142 @@
-<h1> Fitness Will be {{final_result}} </h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitness Result</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #74ebd5, #9face6);
+            padding: 20px;
+        }
+
+        .result-card {
+            width: 100%;
+            max-width: 650px;
+            background: rgba(255, 255, 255, 0.96);
+            padding: 40px 30px;
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            color: #1f2937;
+            font-size: 34px;
+            margin-bottom: 12px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            font-size: 16px;
+            margin-bottom: 28px;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 22px;
+            border-radius: 18px;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.25);
+        }
+
+        .result-value {
+            display: block;
+            font-size: 38px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            text-decoration: none;
+            padding: 13px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 28px;
+            }
+
+            .result-value {
+                font-size: 30px;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="result-card">
+        <div class="icon">🏆</div>
+        <h1>Prediction Result</h1>
+        <p class="subtitle">Here is your estimated fitness score based on the information provided.</p>
+
+       <div class="result-box">
+    Prediction Result
+    <span class="result-value">
+        {% if final_result == 1 or final_result == 1.0 %}
+            Good
+        {% elif final_result == 0 or final_result == 0.0 %}
+            Bad
+        {% else %}
+            {{ final_result }}
+        {% endif %}
+    </span>
+        <div class="btn-group">
+            <a href="{{ url_for('predict') }}" class="btn btn-primary">Predict Again</a>
+            <a href="{{ url_for('home_page') }}" class="btn btn-secondary">Back to Home</a>
+        </div>
+    </div>
+</body>
+</html>

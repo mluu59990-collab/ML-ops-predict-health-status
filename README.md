@@ -46,19 +46,4 @@ The project includes the following components:
 
 ---
 
-## Project Structure
-```bash
-.
-├── data/                 # raw and processed data
-├── notebooks/            # exploratory notebooks
-├── src/                  # source code
-│   ├── preprocessing/    # data preprocessing scripts
-│   ├── training/         # model training scripts
-│   ├── evaluation/       # evaluation scripts
-│   └── api/              # FastAPI application
-├── models/               # saved models
-├── dvc.yaml              # DVC pipeline definition
-├── requirements.txt      # dependencies
-├── Dockerfile            # Docker configuration
-├── .github/workflows/    # GitHub Actions workflows
-└── README.md
+

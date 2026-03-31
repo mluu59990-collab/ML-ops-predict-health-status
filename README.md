@@ -3,9 +3,9 @@
 This project includes a Flask-based web application for fitness prediction using a trained machine learning pipeline.
 
 
-<video controls width="800">
-  <source src="[ml.mp4](https://github.com/mluu59990-collab/ML-ops-predict-health-status/tree/main/Demo_img#:~:text=ml.-,mp4,-airflow)" type="video/mp4">
-</video>
+
+https://github.com/user-attachments/assets/0da44a61-0ad5-4bb5-82b5-805661e9d2e7
+
 
 ### Demo Overview
 Users can:

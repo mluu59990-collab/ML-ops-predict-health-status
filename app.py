@@ -17,9 +17,9 @@ def predict():
             c_nang =float(request.form.get("weight_kg")),
             nhip_tim = float(request.form.get("heart_rate")),
             huyet_ap = float(request.form.get("blood_pressure")),
-            gio_ngu = int(request.form.get("sleep_hours")),
-            dinh_duong = int(request.form.get("nutrition_quality")),
-            hd = int(request.form.get("activity_index")),
+            gio_ngu = float(request.form.get("sleep_hours")),
+            dinh_duong = float(request.form.get("nutrition_quality")),
+            hd = float(request.form.get("activity_index")),
             gt =request.form.get("gender"),
             hutthuoc = request.form.get("smokes")
         )

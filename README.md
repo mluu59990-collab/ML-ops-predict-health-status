@@ -2,7 +2,9 @@
 ## Demo
 
 
-Watch the demo video here: [Demo Video](/Users/Documents/ML_OPS/DAY11/Demo_img/ml.mp4)
+## Demo
+
+![Demo](Demo_img/ml.mp4.gif)
 This project includes a Flask-based web application for fitness prediction using a trained machine learning pipeline.
 
 ### Demo Overview

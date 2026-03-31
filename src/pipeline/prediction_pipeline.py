@@ -31,7 +31,7 @@ class CustomData:
                 c_nang:float,
                 nhip_tim:float,
                 huyet_ap:float,
-                gio_ngu:int,
+                gio_ngu:float,
                 dinh_duong:int,
                 hd:int,
                 gt:str,

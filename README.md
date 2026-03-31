@@ -1,9 +1,8 @@
 
-Nếu bạn muốn nhìn **xịn hơn** thì dùng bản này:
-
-```md
 ## Demo
 
+
+Watch the demo video here: [Demo Video](/Users/Documents/ML_OPS/DAY11/Demo_img/ml.mp4)
 This project includes a Flask-based web application for fitness prediction using a trained machine learning pipeline.
 
 ### Demo Overview
@@ -15,7 +14,7 @@ Users can:
 ### Interface Preview
 | Home Page | Input Form | Prediction Result |
 |----------|------------|------------------|
-| ![Home](images/home.png) | ![Form](images/form.png) | ![Result](images/result.png) |
+| ![Home](/Users/Documents/ML_OPS/DAY11/Demo_img/img1.jpg) | ![Form](/Users/Documents/ML_OPS/DAY11/Demo_img/img2.jpg) | ![Result](/Users/Documents/ML_OPS/DAY11/Demo_img/img3.jpg) |
 
 ### Run the Demo Locally
 ```bash

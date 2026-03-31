@@ -4,7 +4,7 @@ This project includes a Flask-based web application for fitness prediction using
 
 
 <video controls width="800">
-  <source src="ml.mp4" type="video/mp4">
+  <source src="[ml.mp4](https://github.com/mluu59990-collab/ML-ops-predict-health-status/tree/main/Demo_img#:~:text=ml.-,mp4,-airflow)" type="video/mp4">
 </video>
 
 ### Demo Overview

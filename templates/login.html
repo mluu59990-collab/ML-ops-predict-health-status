@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Đăng Nhập – FitCheck</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0b0f13;
+    --surface:   #131820;
+    --border:    #1f2a36;
+    --accent:    #00e5a0;
+    --accent2:   #0099ff;
+    --danger:    #ff4d6d;
+    --warning:   #ffb703;
+    --text:      #e8f0f7;
+    --muted:     #5a7080;
+    --mono:      'DM Mono', monospace;
+    --display:   'Syne', sans-serif;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  /* animated grid background */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  /* floating orbs */
+  body::after {
+    content: '';
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,229,160,0.07) 0%, transparent 70%);
+    top: -200px; right: -150px;
+    pointer-events: none;
+  }
+
+  .card {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 48px 44px;
+    width: 100%;
+    max-width: 420px;
+    animation: slideUp 0.5s cubic-bezier(.22,.68,0,1.2) both;
+  }
+
+  @keyframes slideUp {
+    from { opacity:0; transform: translateY(30px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+
+  /* top accent bar */
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 44px; right: 44px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 0 0 4px 4px;
+  }
+
+  .logo {
+    font-family: var(--display);
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .logo span { color: var(--accent); }
+
+  .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    margin-bottom: 36px;
+  }
+
+  .flash-list { list-style: none; margin-bottom: 20px; }
+  .flash-list li {
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .flash-error   { background: rgba(255,77,109,0.12); border-left: 3px solid var(--danger); color: var(--danger); }
+  .flash-success { background: rgba(0,229,160,0.10); border-left: 3px solid var(--accent); color: var(--accent); }
+  .flash-warning { background: rgba(255,183,3,0.10);  border-left: 3px solid var(--warning); color: var(--warning); }
+  .flash-info    { background: rgba(0,153,255,0.10); border-left: 3px solid var(--accent2); color: var(--accent2); }
+
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  input[type="email"],
+  input[type="password"],
+  input[type="text"] {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    padding: 12px 16px;
+    margin-bottom: 22px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,229,160,0.12);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: opacity 0.2s, transform 0.15s;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #0b0f13;
+  }
+  .btn-primary:hover { opacity: 0.88; }
+
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--muted); font-size: 12px; margin: 24px 0;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  .link-row {
+    text-align: center;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .link-row a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .link-row a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">Fit<span>Check</span></div>
+  <div class="subtitle">Dự đoán tình trạng sức khoẻ của bạn</div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul class="flash-list">
+        {% for category, message in messages %}
+          <li class="flash-{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('auth.login') }}">
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email"
+           value="{{ email|default('') }}"
+           placeholder="ten@email.com" required/>
+
+    <label for="password">Mật khẩu</label>
+    <input type="password" id="password" name="password"
+           placeholder="••••••••" required/>
+
+    <button type="submit" class="btn btn-primary">Đăng nhập</button>
+  </form>
+
+  <div class="divider">chưa có tài khoản?</div>
+
+  <div class="link-row">
+    <a href="{{ url_for('auth.register') }}">Tạo tài khoản mới →</a>
+  </div>
+</div>
+</body>
+</html>

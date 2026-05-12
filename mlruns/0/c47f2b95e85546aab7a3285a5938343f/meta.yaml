@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/c47f2b95e85546aab7a3285a5938343f/artifacts
+end_time: 1778107840624
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: c47f2b95e85546aab7a3285a5938343f
+run_name: sincere-moose-714
+run_uuid: c47f2b95e85546aab7a3285a5938343f
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778107838619
+status: 3
+tags: []
+user_id: apple

@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/e8caae0c542c47888ff51c93875c45df/artifacts
+end_time: 1778035178353
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: e8caae0c542c47888ff51c93875c45df
+run_name: popular-squid-112
+run_uuid: e8caae0c542c47888ff51c93875c45df
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778035176431
+status: 3
+tags: []
+user_id: apple

@@ -14,16 +14,39 @@ from pathlib import Path
 @dataclass
 class DataTransformationConfig:
     preprocessor_obj_filepath = os.path.join("artifact","preprocessor.pkl")
+
+# FeatureEnginerring BMI 
+def add_bmi(X):
+    X = X.copy()
+    
+    height_m = X["height_cm"] / 100
+    X["BMI"] = X["weight_kg"] / (height_m ** 2)
+
+    # 👉 BMI Category
+    def bmi_category(bmi):
+        if bmi < 18.5:
+            return 'underweight'   # underweight
+        elif bmi < 25:
+            return 'normal'   # normal
+        elif bmi < 30:
+            return 'overweight'   # overweight
+        else:
+            return 'obese'   # obese
+
+    X["BMI_cat"] = X["BMI"].apply(bmi_category)
+
+    return X
 class DataTransformation:
     def __init__(self):
         self.data_transform_config = DataTransformationConfig()
     def get_data_transformation(self):
         try:
-            categorical_cols = ["smokes", "gender"]
+            categorical_cols = ["smokes", "gender","BMI_cat"]
             numerical_cols = [
                 "age","height_cm","weight_kg","heart_rate","blood_pressure",
-                "sleep_hours","nutrition_quality","activity_index"
+                "sleep_hours","nutrition_quality","activity_index","BMI"
             ]
+            bmi_transformer = FunctionTransformer(add_bmi)
 
             num_pipeline = Pipeline(steps=[
                 ("imputer", SimpleImputer(strategy="mean")),
@@ -35,13 +58,16 @@ class DataTransformation:
                 ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
             ])
 
-            preprocessor = ColumnTransformer(
+            preprocessor = Pipeline(steps = [
+                ("BMI",bmi_transformer),
+                ("Column_transformer",ColumnTransformer(
                 transformers=[
                     ("num", num_pipeline, numerical_cols),
                     ("cat", cat_pipeline, categorical_cols),
                 ],
                 remainder="drop"
-            )
+                ))
+            ])
             return preprocessor
 
         except Exception as e:
@@ -50,20 +76,29 @@ class DataTransformation:
         try:
             train_df = pd.read_csv(train_path)
             test_df = pd.read_csv(test_path)
-            logging.info("Doc train,test hoan tat")
+            logging.info("Doc train,val,test hoan tat")
             logging.info(f"Train data frame head:\n{train_df.head().to_string()}")
             logging.info(f"Test data frame head:\n{test_df.head().to_string()}")
             preprocessing_obj = self.get_data_transformation()
             target_column_name = 'is_fit'
             drop_columns = [target_column_name]
+            #train
             input_feature_train_df = train_df.drop(columns=drop_columns)
+
             target_feature_train_df = train_df[target_column_name]
+        
+            #test
             input_feature_test_df = test_df.drop(columns=drop_columns)
             target_feature_test_df = test_df[target_column_name]
+
             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
+
             input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
+
+
             logging.info("Ap dung preprocessing cho train,test data")
             train_arr = np.c_[input_feature_train_arr,np.array(target_feature_train_df)]
+
             test_arr = np.c_[input_feature_test_arr,np.array(target_feature_test_df)]
             save_object(
                 file_path = self.data_transform_config.preprocessor_obj_filepath,
@@ -72,6 +107,7 @@ class DataTransformation:
             logging.info("preprocessing pickle file saved")
             return (
                 train_arr,
+   
                 test_arr
             )
         except Exception as e:

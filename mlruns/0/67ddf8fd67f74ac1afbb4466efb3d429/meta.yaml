@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/67ddf8fd67f74ac1afbb4466efb3d429/artifacts
+end_time: 1778593312367
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 67ddf8fd67f74ac1afbb4466efb3d429
+run_name: bustling-sow-36
+run_uuid: 67ddf8fd67f74ac1afbb4466efb3d429
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778593310194
+status: 3
+tags: []
+user_id: apple

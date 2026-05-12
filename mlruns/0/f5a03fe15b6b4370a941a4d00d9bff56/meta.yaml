@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/f5a03fe15b6b4370a941a4d00d9bff56/artifacts
+end_time: 1778035919592
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: f5a03fe15b6b4370a941a4d00d9bff56
+run_name: clumsy-doe-818
+run_uuid: f5a03fe15b6b4370a941a4d00d9bff56
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778035917747
+status: 3
+tags: []
+user_id: apple

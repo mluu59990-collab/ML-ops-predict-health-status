@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/d5177f4fb4d4454da5975ce3adcb9d97/artifacts
+end_time: 1778035783090
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: d5177f4fb4d4454da5975ce3adcb9d97
+run_name: debonair-smelt-816
+run_uuid: d5177f4fb4d4454da5975ce3adcb9d97
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778035781295
+status: 3
+tags: []
+user_id: apple

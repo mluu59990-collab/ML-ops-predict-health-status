@@ -4,53 +4,83 @@ from src.logger.logger import logging
 from src.exception.exception import CustomException
 import os
 import sys
-from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
 from pathlib import Path
-from src.utils.utils import save_object,load_object,evaluate_model
+from src.utils.utils import save_object, load_object
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.svm import SVC
+from sklearn.model_selection import GridSearchCV, StratifiedKFold
+
 
 @dataclass
 class ModelTrainerConfig:
-    trained_model_file_path = os.path.join('artifact','model.pkl')
+    trained_model_file_path = os.path.join('artifact', 'model.pkl')
+
+
 class ModelTrainer:
     def __init__(self):
         self.model_trainer_config = ModelTrainerConfig()
-    def initiate_model_training(self,train_array,test_array):
+
+    def initiate_model_training(self, train_array):  # ← thụt vào trong class
         try:
-            logging.info("Chia du lieu")
-            x_train,y_train,x_test,y_test = (
-                train_array[:,:-1],
-                train_array[:,-1],
-                test_array[:,:-1],
-                test_array[:,-1]
-            )
-            model ={
-                'SVM':SVC(),
-                'logistic_regression':LogisticRegression(),
-                'random_forest':RandomForestClassifier()
+            x_train, y_train = train_array[:, :-1], train_array[:, -1]
+
+            models = {
+                'SVM': SVC(),
+                'logistic_regression': LogisticRegression(),
+                'random_forest': RandomForestClassifier(random_state=42),
             }
-            model_report:dict = evaluate_model(x_train,y_train,x_test,y_test,model)
-            print(model_report)
-            print('\n============================================================')
-            logging.info(f'Model Report:{model_report}')
-            #laays best model
-            best_model_score = max(sorted(model_report.values()))
-            best_model_name = list(model_report.keys())[
-                list(model_report.values()).index(best_model_score)
-            ]
-            best_model = model[best_model_name]
-            print(f'best model found, model name:{best_model_name},Recall score :{best_model_score}')
-            print('\n=============================================================')
-            logging.info(f'Best model found, model name:{best_model_name},Recall score:{best_model_score}')
+
+            param_grids = {
+                'SVM': {
+                    'C': [0.1, 1, 10],
+                    'kernel': ['rbf', 'linear'],
+                },
+                'logistic_regression': {
+                    'C': [0.01, 0.1, 1, 10],
+                    'max_iter': [200],
+                },
+                'random_forest': {
+                    'n_estimators': [100, 200],
+                    'max_depth': [None, 10, 20],
+                    'min_samples_split': [2, 5],
+                },
+            }
+
+            cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+            best_score = -1
+            best_model = None
+            best_model_name = None
+
+            for name, model in models.items():
+                print(f"\n Tuning {name}...")
+                gs = GridSearchCV(
+                    model,
+                    param_grids[name],
+                    scoring='recall',
+                    cv=cv,
+                    n_jobs=-1,
+                    verbose=1,
+                )
+                gs.fit(x_train, y_train)
+
+                print(f"   Best params : {gs.best_params_}")
+                print(f"   Best recall : {gs.best_score_:.4f}")
+
+                if gs.best_score_ > best_score:
+                    best_score = gs.best_score_
+                    best_model = gs.best_estimator_
+                    best_model_name = name
+
+            print(f"\nBest model: {best_model_name} | Recall(CV): {best_score:.4f}")
+            logging.info(f"Best model: {best_model_name}, Recall: {best_score:.4f}")
+
             save_object(
                 file_path=self.model_trainer_config.trained_model_file_path,
-                obj= best_model
+                obj=best_model
             )
+
         except Exception as e:
             logging.info('loi')
-            raise CustomException(e,sys) 
-
-
+            raise CustomException(e, sys)

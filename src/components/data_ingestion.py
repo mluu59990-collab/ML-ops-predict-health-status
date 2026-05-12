@@ -23,9 +23,10 @@ class DataIngestion:
             os.makedirs(os.path.dirname(self.ingestion_data.raw_data_path), exist_ok=True)
             data.to_csv(self.ingestion_data.raw_data_path,index=False)
             logging.info("Luu data thanh file csv")
+
             logging.info("Bat dau qua trinh chia du lieu train test split")
             train_data,test_data = train_test_split(data,test_size=0.2,stratify= data["is_fit"],random_state=42)
-            logging.info("Da hoan thanh chia du lieu train, test")
+            logging.info(f"Kich thuoc - Train: {len(train_data)}, Test: {len(test_data)}")
             train_data.to_csv(self.ingestion_data.train_data_path,index = False)
             test_data.to_csv(self.ingestion_data.test_data_path,index = False)
             logging.info("Chen du lieu da hoan thanh")

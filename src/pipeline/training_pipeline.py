@@ -27,12 +27,33 @@ class TrainingPipeline:
     def model_train(self,train_arr,test_arr):
         try:
             model_trainer_obj=ModelTrainer()
-            model_trainer_obj.initiate_model_training(train_arr,test_arr)
+            model_trainer_obj.initiate_model_training(train_arr)
         except Exception as e:
             raise CustomException(e,sys)
-    def model_eval(self,train_arr,test_arr):
+    def model_eval(self,test_arr):
         try:    
             model_eval_obj =ModelEvaluationConfig()
-            model_eval_obj.initiate_model_evaluation(train_arr,test_arr)
+            model_eval_obj.initiate_model_evaluation(test_arr)
         except Exception as e:
             raise CustomException(e,sys)
+if __name__ == "__main__":
+    from src.components.data_ingestion import DataIngestion
+    from src.components.data_transformation import DataTransformation
+
+    # Bước 1: lấy data
+    ingestion = DataIngestion()
+    train_path, test_path = ingestion.initiate_data_ingestion()
+
+    # Bước 2: transform
+    transformation = DataTransformation()
+    train_arr, test_arr = transformation.initialize_data_transformation(
+        train_path, test_path
+    )
+
+    # Bước 3: train — gọi chính class này
+    print("Training......")
+    trainer = ModelTrainer()
+    trainer.initiate_model_training(train_arr)
+    print("Evaluation.....")
+    evaluator = ModelEvaluationConfig()
+    evaluator.initiate_model_evaluation(test_arr)

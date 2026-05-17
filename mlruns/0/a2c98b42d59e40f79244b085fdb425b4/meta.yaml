@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/a2c98b42d59e40f79244b085fdb425b4/artifacts
+end_time: 1778779676208
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: a2c98b42d59e40f79244b085fdb425b4
+run_name: righteous-asp-639
+run_uuid: a2c98b42d59e40f79244b085fdb425b4
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778779674055
+status: 3
+tags: []
+user_id: apple

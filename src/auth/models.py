@@ -49,16 +49,18 @@ class HistoryModel:
         self.col.create_index("user_id")
         self.col.create_index("created_at")
 
-    def save(self, user_id: str, input_data: dict, result: str):
+    def save(self, user_id: str, input_data: dict, result: str, model_version: str = None):
         """
-        result: "Fit" hoặc "Not Fit"
-        input_data: dict các feature người dùng nhập
+        result        : "Fit" hoặc "Not Fit"
+        input_data    : dict các feature người dùng nhập
+        model_version : version MLflow được dùng để dự đoán (None = latest)
         """
         doc = {
-            "user_id": str(user_id),
-            "input_data": input_data,
-            "result": result,
-            "created_at": datetime.utcnow(),
+            "user_id":       str(user_id),
+            "input_data":    input_data,
+            "result":        result,
+            "model_version": model_version or "latest",
+            "created_at":    datetime.utcnow(),
         }
         inserted = self.col.insert_one(doc)
         doc["_id"] = str(inserted.inserted_id)

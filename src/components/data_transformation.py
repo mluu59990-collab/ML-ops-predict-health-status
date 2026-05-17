@@ -22,7 +22,6 @@ def add_bmi(X):
     height_m = X["height_cm"] / 100
     X["BMI"] = X["weight_kg"] / (height_m ** 2)
 
-    # 👉 BMI Category
     def bmi_category(bmi):
         if bmi < 18.5:
             return 'underweight'   # underweight
@@ -54,8 +53,7 @@ class DataTransformation:
             ])
 
             cat_pipeline = Pipeline(steps=[
-                ("imputer", SimpleImputer(strategy="most_frequent")),
-                ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False)),
+                ("onehot", OneHotEncoder(handle_unknown="ignore", sparse=False)),
             ])
 
             preprocessor = Pipeline(steps = [
@@ -107,7 +105,6 @@ class DataTransformation:
             logging.info("preprocessing pickle file saved")
             return (
                 train_arr,
-   
                 test_arr
             )
         except Exception as e:

@@ -9,15 +9,16 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg:      #0b0f13;
-    --surface: #131820;
-    --surface2:#171f2a;
-    --border:  #1f2a36;
-    --accent:  #00e5a0;
-    --accent2: #0099ff;
-    --danger:  #ff4d6d;
-    --text:    #e8f0f7;
-    --muted:   #5a7080;
+    --bg:      #eef4fb;
+    --surface: #ffffff;
+    --surface2:#f0f6fd;
+    --border:  #c8ddf0;
+    --accent:  #2a7fd4;
+    --accent2: #4fb8e8;
+    --accent-light: #d6eaf8;
+    --danger:  #e05470;
+    --text:    #1a2e42;
+    --muted:   #6a8da8;
     --mono:    'DM Mono', monospace;
     --display: 'Syne', sans-serif;
   }
@@ -36,7 +37,7 @@
       linear-gradient(var(--border) 1px, transparent 1px),
       linear-gradient(90deg, var(--border) 1px, transparent 1px);
     background-size: 48px 48px;
-    opacity: 0.3;
+    opacity: 0.45;
     pointer-events: none;
     z-index: 0;
   }
@@ -44,12 +45,13 @@
   /* ── Navbar ── */
   nav {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(11,15,19,0.9);
+    background: rgba(238,244,251,0.92);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     padding: 0 40px;
     display: flex; align-items: center; justify-content: space-between;
     height: 64px;
+    box-shadow: 0 1px 12px rgba(42,127,212,0.07);
   }
   .nav-logo { font-family: var(--display); font-size: 22px; font-weight: 800; text-decoration: none; color: var(--text); }
   .nav-logo span { color: var(--accent); }
@@ -59,24 +61,24 @@
     padding: 6px 14px; border-radius: 6px;
     transition: background 0.2s, color 0.2s;
   }
-  .nav-links a:hover { background: var(--surface); color: var(--text); }
-  .nav-links a.active { color: var(--accent); }
+  .nav-links a:hover { background: var(--accent-light); color: var(--accent); }
+  .nav-links a.active { color: var(--accent); background: var(--accent-light); }
   .nav-links .btn-logout {
     border: 1px solid var(--border); color: var(--muted);
   }
-  .nav-links .btn-logout:hover { border-color: var(--danger); color: var(--danger); background: none; }
+  .nav-links .btn-logout:hover { border-color: var(--danger); color: var(--danger); background: rgba(224,84,112,0.06); }
 
   /* ── Main ── */
   main {
     position: relative; z-index: 1;
-    max-width: 640px;
+    max-width: 660px;
     margin: 0 auto;
     padding: 48px 24px 80px;
   }
 
   /* ── Page header ── */
   .page-header { margin-bottom: 36px; animation: fadeUp 0.4s both; }
-  .page-header h1 { font-family: var(--display); font-size: 32px; font-weight: 800; margin-bottom: 6px; }
+  .page-header h1 { font-family: var(--display); font-size: 32px; font-weight: 800; margin-bottom: 6px; color: var(--text); }
   .page-header p  { color: var(--muted); font-size: 14px; }
 
   @keyframes fadeUp {
@@ -93,13 +95,96 @@
     position: relative;
     overflow: hidden;
     animation: fadeUp 0.4s 0.08s both;
+    box-shadow: 0 4px 24px rgba(42,127,212,0.09);
   }
   .form-card::before {
     content: '';
-    position: absolute; top: 0; left: 36px; right: 36px; height: 2px;
+    position: absolute; top: 0; left: 36px; right: 36px; height: 3px;
     background: linear-gradient(90deg, var(--accent), var(--accent2));
     border-radius: 0 0 4px 4px;
   }
+
+  /* ── Model version banner ── */
+  .model-version-banner {
+    background: linear-gradient(135deg, var(--accent-light), #ddf0fb);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    animation: fadeUp 0.4s 0.12s both;
+  }
+  .model-version-banner .mvb-icon {
+    width: 38px; height: 38px; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .model-version-banner .mvb-body { flex: 1; min-width: 0; }
+  .model-version-banner .mvb-label {
+    font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 6px; font-weight: 500;
+  }
+  .mvb-select-wrap { position: relative; }
+  .mvb-select-wrap select {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 9px 36px 9px 12px;
+    outline: none;
+    cursor: pointer;
+    appearance: none; -webkit-appearance: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236a8da8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  .mvb-select-wrap select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(42,127,212,0.12);
+  }
+  .mvb-select-wrap select option { background: var(--surface); color: var(--text); }
+
+  .version-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; padding: 3px 10px; border-radius: 20px;
+    font-weight: 500; margin-left: 8px; vertical-align: middle;
+  }
+  .badge-production { background: rgba(42,200,120,0.12); color: #1e9e6a; border: 1px solid rgba(42,200,120,0.3); }
+  .badge-staging    { background: rgba(255,165,0,0.12);   color: #c07800; border: 1px solid rgba(255,165,0,0.3); }
+  .badge-none       { background: var(--accent-light);    color: var(--accent); border: 1px solid var(--border); }
+
+  /* status dot */
+  .status-dot {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+  }
+  .dot-production { background: #1e9e6a; }
+  .dot-staging    { background: #c07800; }
+  .dot-none       { background: var(--accent); }
+
+  /* refresh button */
+  .btn-refresh {
+    flex-shrink: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .btn-refresh:hover { background: var(--accent-light); border-color: var(--accent); }
+  .btn-refresh.loading { opacity: 0.6; pointer-events: none; }
 
   /* ── Section label ── */
   .section-label {
@@ -110,16 +195,8 @@
   .section-label:first-of-type { margin-top: 0; }
 
   /* ── Grid ── */
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-  .row-3 {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 16px;
-  }
+  .row   { display: grid; grid-template-columns: 1fr 1fr;     gap: 16px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 
   /* ── Form group ── */
   .form-group { margin-bottom: 18px; }
@@ -133,7 +210,7 @@
   input[type="number"],
   select {
     width: 100%;
-    background: var(--bg);
+    background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 8px;
     color: var(--text);
@@ -142,24 +219,23 @@
     padding: 11px 14px;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
-    appearance: none;
-    -webkit-appearance: none;
+    appearance: none; -webkit-appearance: none;
   }
   input[type="number"]:focus,
   select:focus {
     border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(0,229,160,0.1);
+    box-shadow: 0 0 0 3px rgba(42,127,212,0.12);
+    background: var(--surface);
   }
   select {
     cursor: pointer;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a7080' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236a8da8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 14px center;
     padding-right: 36px;
   }
-  select option { background: var(--surface2); color: var(--text); }
+  select option { background: var(--surface); color: var(--text); }
 
-  /* hint text */
   .hint { font-size: 11px; color: var(--muted); margin-top: 5px; }
 
   /* ── Divider ── */
@@ -172,15 +248,16 @@
     border-radius: 10px;
     border: none;
     background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #0b0f13;
+    color: #fff;
     font-family: var(--display);
     font-size: 16px; font-weight: 800;
     cursor: pointer; letter-spacing: 0.3px;
-    transition: opacity 0.2s, transform 0.15s;
+    transition: opacity 0.2s, transform 0.15s, box-shadow 0.2s;
     margin-top: 8px;
+    box-shadow: 0 4px 16px rgba(42,127,212,0.25);
   }
-  .btn-submit:hover   { opacity: 0.88; }
-  .btn-submit:active  { transform: scale(0.99); }
+  .btn-submit:hover  { opacity: 0.9; box-shadow: 0 6px 24px rgba(42,127,212,0.35); }
+  .btn-submit:active { transform: scale(0.99); }
 
   /* back link */
   .back-link {
@@ -189,12 +266,24 @@
     color: var(--muted); text-decoration: none;
     transition: color 0.2s;
   }
-  .back-link:hover { color: var(--text); }
+  .back-link:hover { color: var(--accent); }
+
+  /* loading spinner */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    display: inline-block; width: 12px; height: 12px;
+    border: 2px solid rgba(42,127,212,0.3);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle; margin-right: 4px;
+  }
 
   @media (max-width: 600px) {
     .row, .row-3 { grid-template-columns: 1fr; }
     .form-card   { padding: 28px 20px 32px; }
     nav          { padding: 0 20px; }
+    .model-version-banner { flex-wrap: wrap; }
   }
 </style>
 </head>
@@ -216,8 +305,25 @@
     <p>Nhập các chỉ số của bạn để kiểm tra tình trạng <strong style="color:var(--accent)">Fit</strong> hay <strong style="color:var(--danger)">Not Fit</strong>.</p>
   </div>
 
+  <!-- Model Version Selector Banner -->
+  <div class="model-version-banner">
+    <div class="mvb-icon">🤖</div>
+    <div class="mvb-body">
+      <div class="mvb-label">MLflow Model Version</div>
+      <div class="mvb-select-wrap">
+        <select name="_model_version_display" id="model_version_display" onchange="syncVersion(this)">
+          <option value="">⏳ Đang tải danh sách version...</option>
+        </select>
+      </div>
+    </div>
+    <button type="button" class="btn-refresh" id="btnRefresh" onclick="loadVersions()">↻ Làm mới</button>
+  </div>
+
   <div class="form-card">
     <form action="{{ url_for('predict') }}" method="POST">
+
+      <!-- Hidden field chứa version thực sự gửi lên server -->
+      <input type="hidden" name="model_version" id="model_version" value=""/>
 
       <!-- Thông tin cơ bản -->
       <div class="section-label">Thông tin cơ bản</div>
@@ -296,6 +402,78 @@
     <a href="{{ url_for('dashboard') }}" class="back-link">← Quay về Dashboard</a>
   </div>
 </main>
+
+<script>
+  /**
+   * Gọi endpoint Flask để lấy danh sách model versions từ MLflow.
+   * Flask cần expose route: GET /api/model-versions
+   * trả về JSON: [{ version, stage, run_id }, ...]
+   *
+   * Nếu chưa có route đó, script fallback sang dùng
+   * get_available_versions() từ prediction_pipeline.py thông qua
+   * endpoint tuỳ chỉnh bạn thêm vào Flask.
+   */
+  async function loadVersions() {
+    const sel     = document.getElementById('model_version_display');
+    const hidden  = document.getElementById('model_version');
+    const btn     = document.getElementById('btnRefresh');
+
+    btn.classList.add('loading');
+    btn.innerHTML = '<span class="spinner"></span> Đang tải...';
+    sel.innerHTML = '<option value=""> Đang tải từ MLflow...</option>';
+
+    try {
+      const res  = await fetch('/api/model-versions', { credentials: 'same-origin' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();   // [{version, stage, run_id}, ...]
+
+      if (!data || data.length === 0) {
+        sel.innerHTML = '<option value=""> Không có version nào trên MLflow</option>';
+        hidden.value  = '';
+        return;
+      }
+
+      sel.innerHTML = '';
+
+      // data đã sort version giảm dần từ API → index 0 là mới nhất
+      data.forEach((item, idx) => {
+        const opt  = document.createElement('option');
+        opt.value  = item.version;
+
+        const stageLabel = stageMeta(item.stage);
+        const newestTag  = idx === 0 ? '  ★ mới nhất' : '';
+        opt.textContent  = `v${item.version}  –  ${stageLabel.text}${newestTag}`;
+        sel.appendChild(opt);
+      });
+
+      // Mặc định chọn version mới nhất (index 0)
+      sel.value    = data[0].version;
+      hidden.value = data[0].version;
+
+    } catch (err) {
+      console.error('Lỗi tải MLflow versions:', err);
+      sel.innerHTML = '<option value=""> Không kết nối được MLflow (dùng latest)</option>';
+      hidden.value  = '';
+    } finally {
+      btn.classList.remove('loading');
+      btn.innerHTML = '↻ Làm mới';
+    }
+  }
+
+  function syncVersion(selectEl) {
+    document.getElementById('model_version').value = selectEl.value;
+  }
+
+  function stageMeta(stage) {
+    if (!stage || stage === 'None') return { text: 'None',       cls: 'dot-none'       };
+    if (stage === 'Production')     return { text: 'Production', cls: 'dot-production' };
+    if (stage === 'Staging')        return { text: 'Staging',    cls: 'dot-staging'    };
+    return { text: stage, cls: 'dot-none' };
+  }
+
+  // Tự động tải khi trang mở
+  document.addEventListener('DOMContentLoaded', loadVersions);
+</script>
 
 </body>
 </html>

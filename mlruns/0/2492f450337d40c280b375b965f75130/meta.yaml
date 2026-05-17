@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/2492f450337d40c280b375b965f75130/artifacts
+end_time: 1778774836222
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2492f450337d40c280b375b965f75130
+run_name: sneaky-snipe-859
+run_uuid: 2492f450337d40c280b375b965f75130
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778774834204
+status: 3
+tags: []
+user_id: apple

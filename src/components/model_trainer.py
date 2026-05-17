@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from sklearn.metrics import f1_score, make_scorer, make_scorer
 from src.logger.logger import logging
 from src.exception.exception import CustomException
 import os
@@ -38,11 +39,11 @@ class ModelTrainer:
                     'kernel': ['rbf', 'linear'],
                 },
                 'logistic_regression': {
-                    'C': [0.01, 0.1, 1, 10],
+                    'C': [0.01, 0.1, 1, 10,100],
                     'max_iter': [200],
                 },
                 'random_forest': {
-                    'n_estimators': [100, 200],
+                    'n_estimators': [100, 200,300],
                     'max_depth': [None, 10, 20],
                     'min_samples_split': [2, 5],
                 },
@@ -52,13 +53,13 @@ class ModelTrainer:
             best_score = -1
             best_model = None
             best_model_name = None
-
+            scoring = make_scorer(f1_score, pos_label=0)
             for name, model in models.items():
                 print(f"\n Tuning {name}...")
                 gs = GridSearchCV(
                     model,
                     param_grids[name],
-                    scoring='recall',
+                    scoring=scoring,  # Sử dụng F1 macro để đánh giá toàn bộ lớp
                     cv=cv,
                     n_jobs=-1,
                     verbose=1,
@@ -66,15 +67,15 @@ class ModelTrainer:
                 gs.fit(x_train, y_train)
 
                 print(f"   Best params : {gs.best_params_}")
-                print(f"   Best recall : {gs.best_score_:.4f}")
+                print(f"   Best F1 score : {gs.best_score_:.4f}")
 
                 if gs.best_score_ > best_score:
                     best_score = gs.best_score_
                     best_model = gs.best_estimator_
                     best_model_name = name
 
-            print(f"\nBest model: {best_model_name} | Recall(CV): {best_score:.4f}")
-            logging.info(f"Best model: {best_model_name}, Recall: {best_score:.4f}")
+            print(f"\nBest model: {best_model_name} | F1 Score(CV): {best_score:.4f}")
+            logging.info(f"Best model: {best_model_name}, F1 Score: {best_score:.4f}")
 
             save_object(
                 file_path=self.model_trainer_config.trained_model_file_path,

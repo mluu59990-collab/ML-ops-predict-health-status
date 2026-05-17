@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/7f7205e9660d4662aace8a5a9dd50f17/artifacts
+end_time: 1778780827292
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 7f7205e9660d4662aace8a5a9dd50f17
+run_name: bedecked-moth-104
+run_uuid: 7f7205e9660d4662aace8a5a9dd50f17
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778780825492
+status: 3
+tags: []
+user_id: apple

@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/Documents/ML_OPS/DAY11/mlruns/0/2cadab16427b4e9f97dcd78c3ce60e81/artifacts
+end_time: 1778813972865
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2cadab16427b4e9f97dcd78c3ce60e81
+run_name: nimble-duck-409
+run_uuid: 2cadab16427b4e9f97dcd78c3ce60e81
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1778813970915
+status: 3
+tags: []
+user_id: apple

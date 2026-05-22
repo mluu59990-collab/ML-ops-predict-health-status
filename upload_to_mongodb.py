@@ -3,7 +3,7 @@ import os
 import pandas as pd
 from pymongo import MongoClient
 
-def upload_fitness_data(csv_path: str = "/Users/Documents/ML_OPS/DAY11/artifact/raw.csv"):
+def upload_fitness_data(csv_path: str = "/Users/Documents/ML_OPS/DAY11/artifact/fitness_dataset.csv"):
     client = MongoClient(os.environ.get("MONGO_URI", "mongodb://localhost:27017/"))
     db = client["fitness_db"]
     collection = db["raw_data"]

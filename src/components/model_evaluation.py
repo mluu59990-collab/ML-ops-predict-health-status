@@ -30,59 +30,39 @@ class ModelEvaluation:
         f1        = f1_score(actual, pred, pos_label=0)
         return precision, recall, f1
 
-    def _compare_with_production(self, client, new_version: str, new_f1: float):
-        """
-        So sánh model mới với Production hiện tại.
-        - Tốt hơn THRESHOLD → promote lên Staging (chờ approve)
-        - Không tốt hơn     → Archive
-        """
-        prod_versions = client.get_latest_versions(
-            "FitnessModel", stages=["Production"]
+    def _get_production_f1(self, client) -> tuple:
+        """Lấy F1 và version của model đang Production. Trả về (f1, version) hoặc (None, None)."""
+        prod_versions = client.get_latest_versions("FitnessModel", stages=["Production"])
+        if not prod_versions:
+            return None, None
+        current_prod = prod_versions[0]
+        current_run  = client.get_run(current_prod.run_id)
+        current_f1   = float(current_run.data.metrics.get("test_f1", 0))
+        return current_f1, current_prod.version
+
+    def _register_and_promote(self, client, run_id: str, new_f1: float, prod_ver, prod_f1):
+        """Register model mới và tự động promote thẳng lên Production."""
+        model_uri = f"runs:/{run_id}/model"
+
+        mv = mlflow.register_model(model_uri=model_uri, name="FitnessModel")
+        logging.info(f"Registered FitnessModel v{mv.version}")
+        print(f"\n✅ Registered FitnessModel version {mv.version}")
+
+        # Promote thẳng lên Production, tự động Archive version cũ
+        client.transition_model_version_stage(
+            name                     = "FitnessModel",
+            version                  = mv.version,
+            stage                    = "Production",
+            archive_existing_versions= True,
         )
 
-        if not prod_versions:
-            # Chưa có Production → promote thẳng lên Staging
-            client.transition_model_version_stage(
-                name             = "FitnessModel",
-                version          = new_version,
-                stage            = "Staging",
-                archive_existing_versions=False,
-            )
-            print(f"  Chưa có Production — promote version {new_version} lên Staging")
-            print(f"   Kiểm tra xong chạy: promote_to_production({new_version})")
-            return
-
-        # Lấy F1 của model đang Production
-        current_prod   = prod_versions[0]
-        current_run    = client.get_run(current_prod.run_id)
-        current_f1     = float(current_run.data.metrics.get("test_f1", 0))
-        current_ver    = current_prod.version
-
-        print(f"\nSo sánh với Production hiện tại:")
-        print(f"   Production v{current_ver} : F1 = {current_f1:.4f}")
-        print(f"   Model mới   v{new_version} : F1 = {new_f1:.4f}")
-        print(f"   Threshold               : +{IMPROVE_THRESHOLD:.2f}")
-
-        if new_f1 > current_f1 + IMPROVE_THRESHOLD:
-            # Model mới tốt hơn → lên Staging chờ approve
-            client.transition_model_version_stage(
-                name             = "FitnessModel",
-                version          = new_version,
-                stage            = "Staging",
-                archive_existing_versions=False,
-            )
-            print(f" Model mới tốt hơn {(new_f1 - current_f1):.4f} → lên Staging (version {new_version})")
-            print(f"   Approve xong chạy: promote_to_production({new_version})")
+        if prod_f1 is None:
+            print(f" Version {mv.version} → Production (lần đầu tiên)")
         else:
-            # Không tốt hơn → Archive, giữ Production cũ
-            client.transition_model_version_stage(
-                name             = "FitnessModel",
-                version          = new_version,
-                stage            = "Archived",
-                archive_existing_versions=False,
-            )
-            print(f" Model mới không cải thiện đủ → Archive version {new_version}")
-            print(f"   Production v{current_ver} vẫn được giữ nguyên")
+            print(f" Version {mv.version} → Production (F1: {prod_f1:.4f} → {new_f1:.4f}, cải thiện +{new_f1 - prod_f1:.4f})")
+            print(f"   Version {prod_ver} đã được Archive tự động")
+
+        return mv.version
 
     def initiate_model_evaluation(self, trained_models: dict, test_array):
         try:
@@ -122,7 +102,6 @@ class ModelEvaluation:
                     mlflow.log_metric("test_f1",        f1)
                     mlflow.log_metric("cv_f1",          cv_f1)
 
-                    # Log model lên MinIO qua MLflow (1 lần duy nhất)
                     mlflow.sklearn.log_model(model, artifact_path="model")
 
                     results[name] = {
@@ -149,31 +128,43 @@ class ModelEvaluation:
                 marker = "" if name == best_model_name else ""
                 print(
                     f"{name:<25} {r['cv_f1']:>8.4f} {r['f1']:>8.4f} "
-                    f"{r['precision']:>10.4f} {r['recall']:>8.4f}{marker}"
+                    f"{r['precision']:>10.4f} {r['recall']:>8.4f} {marker}"
                 )
             print("=" * 55)
             print(f"\nWinner: {best_model_name} | Test F1 = {best_f1:.4f}")
 
-            # ── Bước 1: Lưu pkl local ─────────────────────────────────────────
+            # ── Lưu pkl local ─────────────────────────────────────────────────
             save_object(file_path=self.eval_config.best_model_path, obj=best_model)
             logging.info(f"Saved best model local: {self.eval_config.best_model_path}")
 
-            # ── Bước 2: Register vào MLflow Registry ─────────────────────────
+            # ── So sánh với Production TRƯỚC khi register ────────────────────
             if tracking_url_type_store != "file":
-                best_run_id = results[best_model_name]["run_id"]
-                model_uri   = f"runs:/{best_run_id}/model"
+                prod_f1, prod_ver = self._get_production_f1(client)
 
-                mv = mlflow.register_model(
-                    model_uri = model_uri,
-                    name      = "FitnessModel",
-                )
-                logging.info(
-                    f"Registered '{best_model_name}' as FitnessModel v{mv.version}"
-                )
-                print(f"\n Registered FitnessModel version {mv.version}")
-
-                # ── Bước 3: So sánh với Production hiện tại ──────────────────
-                self._compare_with_production(client, mv.version, best_f1)
+                print(f"\n{'=' * 55}")
+                if prod_f1 is None:
+                    # Lần đầu tiên → register và promote thẳng lên Production
+                    print("  Chưa có Production → register và promote lần đầu")
+                    self._register_and_promote(
+                        client, results[best_model_name]["run_id"],
+                        best_f1, prod_ver, prod_f1
+                    )
+                elif best_f1 > prod_f1 + IMPROVE_THRESHOLD:
+                    # Model mới tốt hơn → register và promote lên Production
+                    print(f"So sánh với Production v{prod_ver}:")
+                    print(f"   Production F1 : {prod_f1:.4f}")
+                    print(f"   Model mới F1  : {best_f1:.4f}  (+{best_f1 - prod_f1:.4f} > threshold {IMPROVE_THRESHOLD})")
+                    self._register_and_promote(
+                        client, results[best_model_name]["run_id"],
+                        best_f1, prod_ver, prod_f1
+                    )
+                else:
+                    # Không tốt hơn → bỏ qua hoàn toàn
+                    print(f"So sánh với Production v{prod_ver}:")
+                    print(f"   Production F1 : {prod_f1:.4f}")
+                    print(f"   Model mới F1  : {best_f1:.4f}")
+                    print(f" Không cải thiện đủ {IMPROVE_THRESHOLD:.0%} → bỏ qua, giữ Production v{prod_ver}")
+                    logging.info(f"Skipped: new_f1={best_f1:.4f} <= prod_f1={prod_f1:.4f} + {IMPROVE_THRESHOLD}")
             else:
                 logging.info("File store — bỏ qua registry")
 
@@ -184,16 +175,13 @@ class ModelEvaluation:
 
 
 def promote_to_production(version: int):
-    """
-    Gọi thủ công sau khi QA team kiểm tra Staging xong.
-    promote_to_production(2)
-    """
+    """Gọi thủ công nếu cần promote 1 version cụ thể lên Production."""
     client = MlflowClient(MLFLOW_TRACKING_URI)
     client.transition_model_version_stage(
         name                     = "FitnessModel",
         version                  = str(version),
         stage                    = "Production",
-        archive_existing_versions= True,  # tự động Archive version Production cũ
+        archive_existing_versions= True,
     )
-    print(f" FitnessModel version {version} đã lên Production!")
+    print(f"✅ FitnessModel version {version} đã lên Production!")
     print(f"   Version Production cũ đã được Archive tự động")

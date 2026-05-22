@@ -1,37 +1,33 @@
-version: '3.8'
-
 x-airflow-common: &airflow-common
-  image: apache/airflow:2.9.0
+  image: apache/airflow:2.8.1
   environment:
     AIRFLOW__CORE__EXECUTOR: LocalExecutor
     AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
     AIRFLOW__CORE__FERNET_KEY: ''
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
     AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+    MLFLOW_TRACKING_URI: http://mlflow:5000
+    MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    AWS_ACCESS_KEY_ID: minioadmin
+    AWS_SECRET_ACCESS_KEY: minioadmin
+    AWS_DEFAULT_REGION: us-east-1
+    MONGO_URI: mongodb://mongo:27017/
+    MONGO_DB_NAME: fitness_db
   volumes:
     - ./airflow/dags:/opt/airflow/dags
     - ./airflow/logs:/opt/airflow/logs
     - ./airflow/plugins:/opt/airflow/plugins
+    - ./artifact:/opt/airflow/artifact
+    - ./src:/opt/airflow/src
   depends_on:
     postgres:
       condition: service_healthy
 
 services:
-  # App của bạn
-  application:
-    build: .
-    image: fitness-prediction:latest
-    container_name: fitness-prediction
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
-      - ./airflow/logs:/opt/airflow/logs
-      - ./airflow/plugins:/opt/airflow/plugins
 
-  # Database cho Airflow
+  # ── PostgreSQL ───────────────────────────────────────────────────────────────
   postgres:
-    image: postgres:13
+    image: postgres:15
     environment:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
@@ -40,36 +36,131 @@ services:
       - postgres-db-volume:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
-      interval: 5s
+      interval: 10s
       retries: 5
+    restart: always
 
-  # Khởi tạo Airflow lần đầu
+  # ── MongoDB ──────────────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+
+  # ── MinIO ────────────────────────────────────────────────────────────────────
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      retries: 3
+    restart: always
+
+  # ── Tạo bucket MinIO tự động ─────────────────────────────────────────────────
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin;
+      mc mb --ignore-existing local/mlflow-artifacts;
+      mc mb --ignore-existing local/dvc-store;
+      echo 'Buckets created!';
+      "
+
+  # ── MLflow ───────────────────────────────────────────────────────────────────
+  mlflow:
+    image: python:3.10-slim-bullseye
+    ports:
+      - "5001:5000"
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      AWS_DEFAULT_REGION: us-east-1
+    depends_on:
+      - minio-init
+    command: >
+      bash -c "pip install mlflow boto3 -q &&
+               mlflow server
+               --backend-store-uri sqlite:///mlflow.db
+               --default-artifact-root s3://mlflow-artifacts/
+               --host 0.0.0.0
+               --port 5000"
+    volumes:
+      - mlflow-data:/mlflow
+    restart: always
+
+  # ── Airflow Init ─────────────────────────────────────────────────────────────
   airflow-init:
     <<: *airflow-common
-    command: version
-    environment:
-      _AIRFLOW_DB_UPGRADE: 'true'
-      _AIRFLOW_WWW_USER_CREATE: 'true'
-      _AIRFLOW_WWW_USER_USERNAME: airflow
-      _AIRFLOW_WWW_USER_PASSWORD: airflow
+    command: >
+      bash -c "
+        pip install pymongo scikit-learn imbalanced-learn mlflow boto3 -q &&
+        airflow db upgrade &&
+        airflow users create
+          --username airflow
+          --password airflow
+          --firstname Admin
+          --lastname User
+          --role Admin
+          --email admin@example.com
+      "
 
-  # Scheduler
-  airflow-scheduler:
-    <<: *airflow-common
-    command: scheduler
-    restart: always
-
-  # Webserver UI
+  # ── Airflow Webserver (port 8000) ────────────────────────────────────────────
   airflow-webserver:
     <<: *airflow-common
-    command: webserver
+    command: bash -c "pip install pymongo scikit-learn imbalanced-learn mlflow boto3 -q && airflow webserver"
     ports:
-      - "8000:8000"
-    restart: always
+      - "8000:8080"   # Airflow UI → localhost:8000
     healthcheck:
-      test: ["CMD", "curl", "--fail", "http://localhost:8000/health"]
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
       retries: 5
+    restart: always
+
+  # ── Airflow Scheduler ────────────────────────────────────────────────────────
+  airflow-scheduler:
+    <<: *airflow-common
+    command: bash -c "pip install pymongo scikit-learn imbalanced-learn mlflow boto3 -q && airflow scheduler"
+    restart: always
+
+  # ── Flask App (port 8080) ────────────────────────────────────────────────────
+  application:
+    build: .
+    container_name: fitness-prediction
+    ports:
+      - "8080:8080"   # Flask App → localhost:8080
+    environment:
+      MONGO_URI: mongodb://mongo:27017/
+      MONGO_DB_NAME: fitness_db
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      SECRET_KEY: fitness-secret-key-change-in-prod
+    volumes:
+      - ./artifact:/app/artifact
+    depends_on:
+      - mongo
+      - mlflow
+    restart: always
 
 volumes:
   postgres-db-volume:
+  mongo-data:
+  minio-data:
+  mlflow-data:

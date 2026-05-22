@@ -160,3 +160,20 @@ cython_debug/
 #.idea/
 .env/mlflow.db
 *.db
+*.db
+mlflow.db
+
+# Artifacts
+artifact/
+mlruns/
+
+# MinIO data
+minio-data/
+
+# Environment
+env/
+.env
+*.env
+
+# DVC cache
+.dvc/cache/

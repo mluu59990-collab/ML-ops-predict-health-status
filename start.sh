@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-export AIRFLOW_HOME=/app/airflow
+export AIRFLOW_HOME=/Users/Documents/ML_OPS/DAY11/airflow
 export AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=sqlite:////app/airflow/airflow.db
 export AIRFLOW__CORE__LOAD_EXAMPLES=False
 
@@ -17,4 +17,4 @@ airflow users create \
 
 airflow scheduler &
 
-exec airflow webserver -p 8080
+exec airflow webserver -p 8000

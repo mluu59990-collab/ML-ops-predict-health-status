@@ -9,7 +9,7 @@ from src.logger.logger import logging
 from src.utils.utils import load_object
 
 MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"
-MODEL_NAME = "FitnessModel"
+MODEL_NAME          = "FitnessModel"
 
 
 def get_mlflow_client():
@@ -18,16 +18,16 @@ def get_mlflow_client():
 
 
 def get_available_versions():
-    """Lay danh sach tat ca version cua FitnessModel tren MLflow Registry."""
+    """Lấy danh sách tất cả version của FitnessModel."""
     try:
-        client = get_mlflow_client()
+        client   = get_mlflow_client()
         versions = client.search_model_versions(f"name='{MODEL_NAME}'")
-        result = []
+        result   = []
         for v in sorted(versions, key=lambda x: int(x.version), reverse=True):
             result.append({
                 "version": v.version,
-                "stage": v.current_stage,      # None / Staging / Production
-                "run_id": v.run_id,
+                "stage":   v.current_stage,   # None / Staging / Production / Archived
+                "run_id":  v.run_id,
             })
         return result
     except Exception:
@@ -40,56 +40,54 @@ class PredictPipeline:
 
     def predict(self, features, model_version=None):
         try:
-            preprocessor_path = os.path.join("artifact", "preprocessor.pkl")
-            preprocessor = load_object(preprocessor_path)
+            preprocessor = load_object(os.path.join("artifact", "preprocessor.pkl"))
 
-            # Load model tu MLflow Registry
             mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+
             if model_version:
+                # Load đúng version chỉ định (dùng khi A/B test)
                 model_uri = f"models:/{MODEL_NAME}/{model_version}"
             else:
-                # Mac dinh dung version moi nhat
-                model_uri = f"models:/{MODEL_NAME}/latest"
+                model_uri = f"models:/{MODEL_NAME}/Production"
 
             logging.info(f"Loading model from MLflow: {model_uri}")
             model = mlflow.sklearn.load_model(model_uri)
 
             scaled_fea = preprocessor.transform(features)
-            pred = model.predict(scaled_fea)
-            return pred
+            return model.predict(scaled_fea)
 
         except Exception as e:
-            logging.info(f"MLflow load that bai, fallback sang artifact/model.pkl: {e}")
-            # Fallback: neu MLflow server khong chay thi dung file local
-            model = load_object(os.path.join("artifact", "model.pkl"))
+            logging.warning(f"MLflow load thất bại, fallback sang local pkl: {e}")
+            # Fallback: MLflow server không chạy → dùng file local
+            model        = load_object(os.path.join("artifact", "model.pkl"))
             preprocessor = load_object(os.path.join("artifact", "preprocessor.pkl"))
-            scaled_fea = preprocessor.transform(features)
+            scaled_fea   = preprocessor.transform(features)
             return model.predict(scaled_fea)
 
 
 class CustomData:
     def __init__(self,
-                 tuoi: int,
-                 c_cao: float,
-                 c_nang: float,
-                 nhip_tim: float,
-                 huyet_ap: float,
-                 gio_ngu: float,
-                 dinh_duong: float,
-                 hd: float,
-                 gt: str,
-                 hutthuoc: str):
+                 tuoi:      int,
+                 c_cao:     float,
+                 c_nang:    float,
+                 nhip_tim:  float,
+                 huyet_ap:  float,
+                 gio_ngu:   float,
+                 dinh_duong:float,
+                 hd:        float,
+                 gt:        str,
+                 hutthuoc:  str):
 
-        self.tuoi = tuoi
-        self.c_cao = c_cao
-        self.c_nang = c_nang
-        self.nhip_tim = nhip_tim
-        self.huyet_ap = huyet_ap
-        self.gio_ngu = gio_ngu
+        self.tuoi       = tuoi
+        self.c_cao      = c_cao
+        self.c_nang     = c_nang
+        self.nhip_tim   = nhip_tim
+        self.huyet_ap   = huyet_ap
+        self.gio_ngu    = gio_ngu
         self.dinh_duong = dinh_duong
-        self.hd = hd
-        self.gt = gt
-        self.hutthuoc = hutthuoc
+        self.hd         = hd
+        self.gt         = gt
+        self.hutthuoc   = hutthuoc
 
     def get_data_as_dataframe(self):
         try:

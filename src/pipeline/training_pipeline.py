@@ -9,47 +9,74 @@ from src.exception.exception import CustomException
 from src.components.data_ingestion import DataIngestion
 from src.components.data_transformation import DataTransformation
 from src.components.model_trainer import ModelTrainer
-from src.components.model_evaluation import ModelEvaluationConfig  # da sua tu ModelEvaluationConfig
+from src.components.model_evaluation import ModelEvaluation
+
+# ── Cấu hình MinIO tập trung 1 chỗ ──────────────────────────────────────────
+MINIO_ENDPOINT   = "http://127.0.0.1:9000"
+MINIO_ACCESS_KEY = "minioadmin"
+MINIO_SECRET_KEY = "minioadmin"
+MLFLOW_BUCKET    = "s3://mlflow-artifacts/"
+MLFLOW_PORT      = 5000
+
+
+def _set_minio_env():
+    """Set tất cả env vars cần thiết cho MinIO/S3 — gọi trước mọi thứ."""
+    os.environ["MLFLOW_S3_ENDPOINT_URL"]  = MINIO_ENDPOINT
+    os.environ["AWS_ACCESS_KEY_ID"]       = MINIO_ACCESS_KEY
+    os.environ["AWS_SECRET_ACCESS_KEY"]   = MINIO_SECRET_KEY
+    os.environ["AWS_DEFAULT_REGION"]      = "us-east-1"
+    os.environ["AWS_S3_ADDRESSING_STYLE"] = "path"
 
 
 def start_mlflow_server():
-    """Tu dong kiem tra va khoi dong MLflow server neu chua chay."""
+    """Khởi động MLflow server nếu chưa chạy, kèm đầy đủ env vars MinIO."""
+
+    # Kiểm tra server đã chạy chưa
     try:
-        response = requests.get("http://127.0.0.1:5000/health", timeout=2)
-        if response.status_code == 200:
-            print("MLflow server da chay san roi tai http://127.0.0.1:5000")
+        r = requests.get(f"http://127.0.0.1:{MLFLOW_PORT}/health", timeout=2)
+        if r.status_code == 200:
+            print(f" MLflow server đã chạy tại http://127.0.0.1:{MLFLOW_PORT}")
             return
     except requests.exceptions.ConnectionError:
         pass
 
-    print("Dang khoi dong MLflow server...")
-    subprocess.Popen(
+    print("Đang khởi động MLflow server...")
+
+    # Truyền đầy đủ env vars cho subprocess
+    env = os.environ.copy()  # đã có MinIO env vì _set_minio_env() gọi trước
+
+    proc = subprocess.Popen(
         [
             "mlflow", "server",
             "--backend-store-uri", "sqlite:///mlflow.db",
-            "--default-artifact-root", "./mlruns",
+            "--default-artifact-root", MLFLOW_BUCKET,
             "--host", "127.0.0.1",
-            "--port", "5000",
+            "--port", str(MLFLOW_PORT),
         ],
+        env=env,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )
 
-    # Cho server khoi dong xong (toi da 15 giay)
-    for i in range(15):
+    # Chờ tối đa 20 giây
+    for i in range(20):
         time.sleep(1)
         try:
-            requests.get("http://127.0.0.1:5000/health", timeout=1)
-            print(f"MLflow server san sang sau {i + 1} giay — http://127.0.0.1:5000")
-            return
+            r = requests.get(f"http://127.0.0.1:{MLFLOW_PORT}/health", timeout=1)
+            if r.status_code == 200:
+                print(f"MLflow server sẵn sàng sau {i + 1}s — http://127.0.0.1:{MLFLOW_PORT}")
+                return
         except requests.exceptions.ConnectionError:
-            print(f"  Dang cho server khoi dong... ({i + 1}s)")
+            print(f"   Đang chờ... ({i + 1}s)")
 
-    raise RuntimeError(
-        "Khong the khoi dong MLflow server sau 15 giay. "
-        "Hay thu chay thu cong: mlflow server --backend-store-uri sqlite:///mlflow.db "
-        "--default-artifact-root ./mlruns --host 127.0.0.1 --port 5000"
-    )
+    # Kiểm tra process có bị crash không
+    if proc.poll() is not None:
+        raise RuntimeError(
+            " MLflow server bị crash khi khởi động. "
+            "Kiểm tra: (1) MinIO đang chạy, (2) bucket 'mlflow-artifacts' đã tạo, "
+            "(3) port 5000 không bị chiếm."
+        )
+    print("  MLflow server có thể chưa sẵn sàng — tiếp tục...")
 
 
 class TrainingPipeline:
@@ -74,42 +101,51 @@ class TrainingPipeline:
     def model_train(self, train_arr):
         try:
             model_trainer_obj = ModelTrainer()
-            model_trainer_obj.initiate_model_training(train_arr)
+            trained_models = model_trainer_obj.initiate_model_training(train_arr)
+            return trained_models
         except Exception as e:
             raise CustomException(e, sys)
 
-    def model_eval(self, test_arr):
+    def model_eval(self, trained_models, test_arr):
         try:
-            model_eval_obj = ModelEvaluationConfig()  # da sua tu ModelEvaluationConfig
-            model_eval_obj.initiate_model_evaluation(test_arr)
+            model_eval_obj = ModelEvaluation()
+            model_eval_obj.initiate_model_evaluation(trained_models, test_arr)
         except Exception as e:
             raise CustomException(e, sys)
 
 
 if __name__ == "__main__":
-    # Buoc 0: dam bao MLflow server dang chay
+    from dotenv import load_dotenv
+    load_dotenv()
+
+    # ── BƯỚC 0: Set env vars MinIO TRƯỚC TIÊN — trước mọi import khác ──────
+    _set_minio_env()
+
+    # ── BƯỚC 1: Đảm bảo MLflow server đang chạy ─────────────────────────────
     start_mlflow_server()
 
-    # Buoc 1: lay data
-    print("\nIngestion......")
-    ingestion = DataIngestion()
-    train_path, test_path = ingestion.initiate_data_ingestion()
+    # ── BƯỚC 2: Data ingestion ───────────────────────────────────────────────
+    print("\n Ingestion......")
+    import datetime
+    version_tag = f"data-{datetime.date.today()}"   # vd: data-2026-05-22
+    ingestion   = DataIngestion()
+    train_path, test_path = ingestion.initiate_data_ingestion(dvc_version_tag=version_tag)
 
-    # Buoc 2: transform
-    print("\nTransformation......")
+    # ── BƯỚC 3: Transform ────────────────────────────────────────────────────
+    print("\n Transformation......")
     transformation = DataTransformation()
     train_arr, test_arr = transformation.initialize_data_transformation(
         train_path, test_path
     )
 
-    # Buoc 3: train
-    print("\nTraining......")
+    # ── BƯỚC 4: Train ────────────────────────────────────────────────────────
+    print("\n Training......")
     trainer = ModelTrainer()
-    trainer.initiate_model_training(train_arr)
+    trained_models = trainer.initiate_model_training(train_arr)
 
-    # Buoc 4: evaluate + register model
-    print("\nEvaluation......")
-    evaluator = ModelEvaluationConfig()  # da sua tu ModelEvaluationConfig
-    evaluator.initiate_model_evaluation(test_arr)
+    # ── BƯỚC 5: Evaluate + register lên MLflow/MinIO ─────────────────────────
+    print("\n Evaluation......")
+    evaluator = ModelEvaluation()
+    evaluator.initiate_model_evaluation(trained_models, test_arr)
 
-    print("\nHoan tat! Vao http://127.0.0.1:5000 de xem ket qua.")
+    print(f"\n Hoàn tất! Vào http://127.0.0.1:{MLFLOW_PORT} để xem kết quả.")
